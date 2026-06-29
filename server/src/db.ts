@@ -1,7 +1,6 @@
 import { Pool } from 'pg'
 
 const DATABASE_URL = process.env.DATABASE_URL ?? ''
-console.log(process.env.DATABASE_URL);
 
 export let pool: Pool | null = null
 
@@ -18,15 +17,6 @@ export async function initDb() {
       rejectUnauthorized: false,
     },
   });
-
-    try {
-    const test = await pool.query("SELECT NOW()");
-    console.log("✅ Connected to Aiven DB at:", test.rows[0].now);
-  } catch (err) {
-    console.error("❌ DB connection failed:", err);
-    pool = null;
-    return;
-  }
 
   await ensureSchema();
 }

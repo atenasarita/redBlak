@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { pool, initDb } from '../db'
 import { Event } from '../models/event'
+import { logger } from '../utils/logger'
+
 
 const router = Router()
 
@@ -29,9 +31,15 @@ router.post('/', async (req: Request, res: Response) => {
     const params = [evt.level, evt.message, evt.metadata, evt.timestamp]
     const r = await pool.query(q, params)
     evt.id = r.rows[0].id
+
+    logger.info('Nuevo evento creado', evt)
+
     return res.status(201).json(evt)
+
   } catch (err) {
     console.error('insert error', err)
+    logger.error('Error al insertar', err)
+
     return res.status(500).json({ error: 'failed to insert' })
   }
 })
@@ -57,9 +65,12 @@ router.get('/', async (req: Request, res: Response) => {
     const r = await pool.query(q, params)
     return res.json(r.rows)
   } catch (err) {
-    console.error('query error', err)
-    return res.status(500).json({ error: 'failed to query' })
-  }
+    logger.error('Query failed', err)
+
+  return res.status(500).json({
+    error: 'failed to query'
+  })
+}
 })
 
 export default router

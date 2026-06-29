@@ -1,14 +1,10 @@
 import { Router, Request, Response } from 'express'
-import { pool, initDb } from '../db'
+import { pool } from '../db'
 import { Event } from '../models/event'
 import { logger } from '../utils/logger'
 
 
 const router = Router()
-
-initDb().catch(err => {
-  console.error('db init failed:', err)
-})
 
 router.post('/', async (req: Request, res: Response) => {
   const body = req.body as Partial<Event>

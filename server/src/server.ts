@@ -1,10 +1,20 @@
-import 'dotenv/config'
-import app from './app'
+import "dotenv/config";
+import app from "./app";
+import { initDb } from "./db";
 
-const port = process.env.PORT ?? '8080'
+const port = Number(process.env.PORT ?? 8080);
 
-if (require.main === module) {
-  app.listen(parseInt(port), () => {
-    console.log(`Server listening on :${port}`)
-  })
+async function start() {
+  try {
+    await initDb();
+
+    app.listen(port, () => {
+      console.log(`Server listening on :${port}`);
+    });
+  } catch (err) {
+    console.error("Failed to initialize database", err);
+    process.exit(1);
+  }
 }
+
+start();

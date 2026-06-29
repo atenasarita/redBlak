@@ -1,17 +1,34 @@
 import { Pool } from 'pg'
 
 const DATABASE_URL = process.env.DATABASE_URL ?? ''
+console.log(process.env.DATABASE_URL);
 
 export let pool: Pool | null = null
 
 export async function initDb() {
   if (!DATABASE_URL) {
-    console.warn('DATABASE_URL not set — running with in-memory fallback')
-    pool = null
-    return
+    console.warn("DATABASE_URL no está configurado");
+    pool = null;
+    return;
   }
-  pool = new Pool({ connectionString: DATABASE_URL })
-  await ensureSchema()
+
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+
+    try {
+    const test = await pool.query("SELECT NOW()");
+    console.log("✅ Connected to Aiven DB at:", test.rows[0].now);
+  } catch (err) {
+    console.error("❌ DB connection failed:", err);
+    pool = null;
+    return;
+  }
+
+  await ensureSchema();
 }
 
 async function ensureSchema() {

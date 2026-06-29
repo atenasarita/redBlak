@@ -4,10 +4,6 @@ import { Event } from '../models/event'
 
 const router = Router()
 
-// In-memory fallback storage when no DATABASE_URL provided
-const inMemory: Event[] = []
-
-// initialize DB (if any)
 initDb().catch(err => {
   console.error('db init failed:', err)
 })
@@ -24,12 +20,9 @@ router.post('/', async (req: Request, res: Response) => {
     timestamp: body.timestamp ?? new Date().toISOString()
   }
 
-  if (!pool) {
-    // store in-memory
-    evt.id = Date.now()
-    inMemory.unshift(evt)
-    return res.status(201).json(evt)
-  }
+    if (!pool) {
+    return res.status(500).json({ error: "DB no configurado" })
+    }
 
   try {
     const q = 'INSERT INTO events (level, message, metadata, timestamp) VALUES ($1, $2, $3, $4) RETURNING id'
@@ -48,13 +41,9 @@ router.get('/', async (req: Request, res: Response) => {
   const limit = Number.isNaN(limitQ) ? 50 : Math.min(limitQ, 100)
   const level = req.query.level as string | undefined
 
-  if (!pool) {
-    let results = inMemory.slice(0, limit)
-    if (level) {
-      results = results.filter(e => e.level === level)
+    if (!pool) {
+        return res.status(500).json({ error: "DB no configurado" })
     }
-    return res.json(results)
-  }
 
   try {
     let q = 'SELECT id, level, message, metadata, timestamp FROM events'

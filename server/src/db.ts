@@ -1,17 +1,25 @@
 import { Pool } from 'pg'
 
 const DATABASE_URL = process.env.DATABASE_URL ?? ''
+console.log(process.env.DATABASE_URL);
 
 export let pool: Pool | null = null
 
 export async function initDb() {
   if (!DATABASE_URL) {
-    console.warn('DATABASE_URL not set — running with in-memory fallback')
-    pool = null
-    return
+    console.warn("DATABASE_URL not set — running with in-memory fallback");
+    pool = null;
+    return;
   }
-  pool = new Pool({ connectionString: DATABASE_URL })
-  await ensureSchema()
+
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  await ensureSchema();
 }
 
 async function ensureSchema() {

@@ -117,7 +117,7 @@ export default function EventTable() {
     setSpinning(true)
     setStatus('conectando')
     try {
-      const res = await fetch('/events')
+      const res = await fetch('http://localhost:8000/events')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = await res.json()
       const data: Event[] = Array.isArray(json) ? json : (json.events ?? json.data ?? [])

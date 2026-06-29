@@ -7,7 +7,7 @@ export let pool: Pool | null = null
 
 export async function initDb() {
   if (!DATABASE_URL) {
-    console.warn("DATABASE_URL not set — running with in-memory fallback");
+    console.warn("DATABASE_URL no está configurado");
     pool = null;
     return;
   }
@@ -18,6 +18,15 @@ export async function initDb() {
       rejectUnauthorized: false,
     },
   });
+
+    try {
+    const test = await pool.query("SELECT NOW()");
+    console.log("✅ Connected to Aiven DB at:", test.rows[0].now);
+  } catch (err) {
+    console.error("❌ DB connection failed:", err);
+    pool = null;
+    return;
+  }
 
   await ensureSchema();
 }

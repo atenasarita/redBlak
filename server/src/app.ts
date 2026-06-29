@@ -1,6 +1,7 @@
-import express from 'express'
 import cors from 'cors'
 import { json } from 'body-parser'
+import express, { Request, Response } from 'express'
+
 
 import eventsRouter from './routes/events'
 
@@ -15,7 +16,7 @@ app.use(json())
 // observabilidad de requests
 app.use(requestLogger)
 
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).send('OK')
 })
 
